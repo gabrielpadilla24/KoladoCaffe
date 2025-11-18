@@ -6,12 +6,15 @@ import NewSubscription from "../pages/NewSubscription";
 import Reports from "../pages/Reports";
 import ViewDetails from "../pages/ViewDetails";
 import Marketplace from "../pages/Marketplace";
+import SuscribirseForm from "../pages/SuscribirseForm";
 
 function AppRoutes() {
   return (
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<Marketplace />} />
+        <Route path="/suscribirse/:id" element={<SuscribirseForm />} />
+
         <Route path="/Login" element={<Login />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/subscriptions" element={<Subscriptions />} />

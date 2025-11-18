@@ -2,8 +2,9 @@ import React, { useState, useEffect } from "react";
 import { supabase } from "../supabaseClient";
 import Navbar from "../components/Navbar";
 import suscripcionesImg from "../assets/suscripciones.jpg";
+import { useNavigate } from "react-router-dom";
 
-// --- Tipo ajustado a tu tabla real ---
+// --- Tipo ajustado a tu tabla ---
 interface Producto {
   id: number;
   productos_suscripcion: string;
@@ -12,33 +13,10 @@ interface Producto {
   activo: boolean;
 }
 
-// --- Función para manejar la suscripción ---
-const handleSuscripcion = async (producto: Producto) => {
-  const pagoExitoso = true; // Simulación de pago
-
-  if (pagoExitoso) {
-    const nuevoPedido = {
-      id_producto: producto.id,
-      datos_cliente: { nombre: "Cliente TS", email: "ts@ejemplo.com" },
-      monto_total: producto.precio,
-    };
-
-    const { error } = await supabase.from("pedidos").insert([nuevoPedido]);
-
-    if (error) {
-      alert("Error al guardar el pedido: " + error.message);
-    } else {
-      alert(
-        `¡Suscripción a ${producto.productos_suscripcion} exitosa! Pedido creado.`
-      );
-    }
-  }
-};
-
-// --- Componente principal ---
 const Marketplace: React.FC = () => {
   const [productos, setProductos] = useState<Producto[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchProductos = async () => {
@@ -93,14 +71,16 @@ const Marketplace: React.FC = () => {
                 <h2 className="text-2xl font-semibold text-[#4A2C2A] mb-2">
                   {producto.productos_suscripcion}
                 </h2>
-
-                {/* ✅ Precio con formato de miles */}
                 <p className="text-2xl font-bold text-[#A77B5D] mb-6">
                   ${producto.precio.toLocaleString("es-CO")}
                 </p>
 
                 <button
-                  onClick={() => handleSuscripcion(producto)}
+                  onClick={() =>
+                    navigate(`/suscribirse/${producto.id}`, {
+                      state: { producto },
+                    })
+                  }
                   className="w-full bg-[#4A2C2A] text-white py-3 rounded-lg hover:bg-[#6B3E36] transition duration-200"
                 >
                   Suscribirse
