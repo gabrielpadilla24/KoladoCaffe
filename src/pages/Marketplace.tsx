@@ -47,7 +47,7 @@ const Marketplace: React.FC = () => {
 
       <div className="max-w-6xl mx-auto py-10 px-6">
         <h1 className="text-4xl font-extrabold text-center text-[#4A2C2A] mb-10">
-          Marketplace de Suscripciones ☕
+          Suscripciones Mensuales ☕
         </h1>
 
         {/* GRID DE PRODUCTOS */}

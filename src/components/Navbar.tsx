@@ -1,4 +1,4 @@
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 const Navbar = () => {
   const navigate = useNavigate();
@@ -14,7 +14,7 @@ const Navbar = () => {
       </div>
 
       {/* LINKS */}
-      <div className="hidden md:flex space-x-6 text-sm font-medium">
+      {/* <div className="hidden md:flex space-x-6 text-sm font-medium">
         <Link to="/" className="hover:text-[#C2A878] transition">
           Inicio
         </Link>
@@ -24,7 +24,7 @@ const Navbar = () => {
         <Link to="/reports" className="hover:text-[#C2A878] transition">
           Reportes
         </Link>
-      </div>
+      </div> */}
 
       {/* BOTÓN LOGIN */}
       <button
