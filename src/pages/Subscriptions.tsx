@@ -1,31 +1,98 @@
+import { useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { supabase } from "../supabaseClient";
 import DashboardLayout from "../layouts/DashboardLayout";
-import { Link } from "react-router-dom";
+
+interface DatosCliente {
+  nombre: string;
+  email: string;
+  direccion: string;
+  telefono: string;
+}
+
+interface Producto {
+  id: number;
+  productos_suscripcion: string;
+  descripcion: string;
+  precio: number;
+}
+
+interface Pedido {
+  id: number;
+  id_producto: number;
+  datos_cliente: DatosCliente;
+  monto_total: number;
+  activa: boolean;
+  pendiente: boolean;
+  ultimo_envio: string;
+  productos_suscripcion?: Producto; // ✅ relación correcta con Supabase
+}
 
 const Subscriptions = () => {
-  // Datos simulados
-  const subscriptions = [
-    {
-      id: 1,
-      name: "Juan Pérez",
-      plan: "Premium",
-      status: "Activa",
-      nextDelivery: "20 Nov 2025",
-    },
-    {
-      id: 2,
-      name: "María Gómez",
-      plan: "Básico",
-      status: "Pendiente de pago",
-      nextDelivery: "18 Nov 2025",
-    },
-    {
-      id: 3,
-      name: "Carlos Ruiz",
-      plan: "Estándar",
-      status: "Activa",
-      nextDelivery: "22 Nov 2025",
-    },
-  ];
+  const [subscriptions, setSubscriptions] = useState<Pedido[]>([]);
+  const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const fetchSubscriptions = async () => {
+      const { data, error } = await supabase
+        .from("pedidos")
+        .select("*, productos_suscripcion(*)"); // ✅ join correcto
+
+      if (error) {
+        console.error("Error al cargar suscripciones:", error);
+      } else {
+        setSubscriptions(data as Pedido[]);
+      }
+      setLoading(false);
+    };
+
+    fetchSubscriptions();
+  }, []);
+
+  const calcularProximoEnvio = (ultimoEnvio: string) => {
+    const fecha = new Date(ultimoEnvio);
+    fecha.setMonth(fecha.getMonth() + 1);
+    return fecha.toLocaleDateString("es-CO", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+    });
+  };
+
+  const marcarComoEnviado = async (id: number) => {
+    const { error } = await supabase
+      .from("pedidos")
+      .update({
+        pendiente: false,
+        ultimo_envio: new Date().toISOString(),
+      })
+      .eq("id", id);
+
+    if (error) alert("Error al actualizar envío: " + error.message);
+    else {
+      alert("✅ Envío marcado como completado.");
+      setSubscriptions((prev) =>
+        prev.map((sub) =>
+          sub.id === id
+            ? {
+                ...sub,
+                pendiente: false,
+                ultimo_envio: new Date().toISOString(),
+              }
+            : sub
+        )
+      );
+    }
+  };
+
+  if (loading) {
+    return (
+      <DashboardLayout>
+        <p className="text-center text-[#4A2C2A]">Cargando suscripciones...</p>
+      </DashboardLayout>
+    );
+  }
 
   return (
     <DashboardLayout>
@@ -56,20 +123,33 @@ const Subscriptions = () => {
                 key={sub.id}
                 className="border-b hover:bg-[#F9F6F2] transition duration-150"
               >
-                <td className="py-3 px-4">{sub.name}</td>
-                <td className="py-3 px-4">{sub.plan}</td>
+                <td className="py-3 px-4">{sub.datos_cliente?.nombre}</td>
+                <td className="py-3 px-4">
+                  {sub.productos_suscripcion?.productos_suscripcion || "—"}
+                </td>
                 <td
                   className={`py-3 px-4 font-semibold ${
-                    sub.status === "Activa"
-                      ? "text-green-600"
-                      : "text-yellow-600"
+                    sub.pendiente ? "text-yellow-600" : "text-green-600"
                   }`}
                 >
-                  {sub.status}
+                  {sub.pendiente ? "Pendiente de envío" : "Activa"}
                 </td>
-                <td className="py-3 px-4">{sub.nextDelivery}</td>
                 <td className="py-3 px-4">
-                  <button className="text-sm bg-[#A77B5D] text-white px-3 py-1 rounded-md hover:bg-[#8C5E58]">
+                  {calcularProximoEnvio(sub.ultimo_envio)}
+                </td>
+                <td className="py-3 px-4 space-x-2">
+                  {sub.pendiente && (
+                    <button
+                      onClick={() => marcarComoEnviado(sub.id)}
+                      className="text-sm bg-[#A77B5D] text-white px-3 py-1 rounded-md hover:bg-[#8C5E58]"
+                    >
+                      Marcar Enviado
+                    </button>
+                  )}
+                  <button
+                    onClick={() => navigate(`/subscription/${sub.id}`)}
+                    className="text-sm bg-[#4A2C2A] text-white px-3 py-1 rounded-md hover:bg-[#6B3E36]"
+                  >
                     Ver Detalles
                   </button>
                 </td>

@@ -2,11 +2,11 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Login from "../pages/Login";
 import Dashboard from "../pages/Dashboard";
 import Subscriptions from "../pages/Subscriptions";
-import NewSubscription from "../pages/NewSubscription";
 import Reports from "../pages/Reports";
 import ViewDetails from "../pages/ViewDetails";
 import Marketplace from "../pages/Marketplace";
 import SuscribirseForm from "../pages/SuscribirseForm";
+import SubscriptionDetail from "../pages/SubscriptionDetail";
 import Pagos from "../pages/Pagos";
 
 function AppRoutes() {
@@ -20,7 +20,7 @@ function AppRoutes() {
         <Route path="/Login" element={<Login />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/subscriptions" element={<Subscriptions />} />
-        <Route path="/new-subscription" element={<NewSubscription />} />
+        <Route path="/subscription/:id" element={<SubscriptionDetail />} />
         <Route path="/reports" element={<Reports />} />
         <Route path="/view-details" element={<ViewDetails />} />
         <Route path="/marketplace" element={<Marketplace />} />
