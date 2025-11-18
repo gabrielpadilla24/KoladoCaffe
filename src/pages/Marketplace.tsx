@@ -93,8 +93,10 @@ const Marketplace: React.FC = () => {
                 <h2 className="text-2xl font-semibold text-[#4A2C2A] mb-2">
                   {producto.productos_suscripcion}
                 </h2>
+
+                {/* ✅ Precio con formato de miles */}
                 <p className="text-2xl font-bold text-[#A77B5D] mb-6">
-                  ${producto.precio}
+                  ${producto.precio.toLocaleString("es-CO")}
                 </p>
 
                 <button
