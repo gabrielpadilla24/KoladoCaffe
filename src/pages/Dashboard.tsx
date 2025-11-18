@@ -6,22 +6,35 @@ const Dashboard = () => {
   const [suscripcionesActivas, setSuscripcionesActivas] = useState<
     number | null
   >(null);
+  const [enviosPendientes, setEnviosPendientes] = useState<number | null>(null);
 
   useEffect(() => {
-    const fetchActivas = async () => {
-      const { data, error } = await supabase
-        .from("pedidos")
-        .select("id", { count: "exact" })
-        .eq("activa", true);
+    const fetchData = async () => {
+      try {
+        // 🔹 Suscripciones activas
+        const { data: activas, error: errorActivas } = await supabase
+          .from("pedidos")
+          .select("id")
+          .eq("activa", true);
 
-      if (error) {
-        console.error("Error al cargar suscripciones:", error);
-      } else {
-        setSuscripcionesActivas(data.length);
+        if (errorActivas) throw errorActivas;
+
+        // 🔹 Envíos pendientes
+        const { data: pendientes, error: errorPendientes } = await supabase
+          .from("pedidos")
+          .select("id")
+          .eq("pendiente", true);
+
+        if (errorPendientes) throw errorPendientes;
+
+        setSuscripcionesActivas(activas.length);
+        setEnviosPendientes(pendientes.length);
+      } catch (error) {
+        console.error("Error al cargar datos del dashboard:", error);
       }
     };
 
-    fetchActivas();
+    fetchData();
   }, []);
 
   return (
@@ -31,7 +44,7 @@ const Dashboard = () => {
       </h1>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {/* Tarjeta 1 */}
+        {/* 🔸 Suscripciones Activas */}
         <div className="bg-white shadow-md p-6 rounded-xl border-l-4 border-[#A77B5D]">
           <h2 className="text-lg font-semibold text-gray-700 mb-2">
             Suscripciones Activas
@@ -43,15 +56,17 @@ const Dashboard = () => {
           </p>
         </div>
 
-        {/* Tarjeta 2 */}
+        {/* 🔸 Envíos Pendientes */}
         <div className="bg-white shadow-md p-6 rounded-xl border-l-4 border-[#DAB49D]">
           <h2 className="text-lg font-semibold text-gray-700 mb-2">
             Envíos Pendientes
           </h2>
-          <p className="text-3xl font-bold text-[#4A2C2A]">12</p>
+          <p className="text-3xl font-bold text-[#4A2C2A]">
+            {enviosPendientes !== null ? enviosPendientes : "Cargando..."}
+          </p>
         </div>
 
-        {/* Tarjeta 3 */}
+        {/* 🔸 Clientes Nuevos (placeholder) */}
         <div className="bg-white shadow-md p-6 rounded-xl border-l-4 border-[#8C5E58]">
           <h2 className="text-lg font-semibold text-gray-700 mb-2">
             Clientes Nuevos
