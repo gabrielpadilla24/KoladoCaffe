@@ -25,6 +25,7 @@ interface Pedido {
   activa: boolean;
   pendiente: boolean;
   ultimo_envio: string;
+  since: string;
   productos_suscripcion?: Producto;
 }
 
@@ -89,6 +90,10 @@ const SubscriptionDetail = () => {
           {subscription.monto_total.toLocaleString()}
         </p>
         <p>
+          <strong>Fecha de suscripción:</strong>{" "}
+          {new Date(subscription.since).toLocaleDateString("es-CO")}
+        </p>
+        <p>
           <strong>Último envío:</strong>{" "}
           {new Date(subscription.ultimo_envio).toLocaleDateString("es-CO")}
         </p>
@@ -96,8 +101,10 @@ const SubscriptionDetail = () => {
           <strong>Estado:</strong>{" "}
           {subscription.pendiente ? (
             <span className="text-yellow-600">Pendiente de envío</span>
-          ) : (
+          ) : subscription.activa ? (
             <span className="text-green-600">Activa</span>
+          ) : (
+            <span className="text-red-600">Cancelada</span>
           )}
         </p>
       </div>

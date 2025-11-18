@@ -8,6 +8,7 @@ interface Pedido {
   monto_total: number;
   activa: boolean;
   ultimo_envio: string | null;
+  since: string | null; // nueva columna
 }
 
 interface MonthlyRevenue {
@@ -29,26 +30,25 @@ const Reports: React.FC = () => {
       try {
         const { data, error } = await supabase
           .from("pedidos")
-          .select("id, monto_total, activa, ultimo_envio");
+          .select("id, monto_total, activa, ultimo_envio, since");
 
         if (error) throw error;
         if (!data) return;
 
         const pedidos = data as Pedido[];
 
-        // Totales
+        // 🔹 Totales
         const total = pedidos.length;
         const activos = pedidos.filter((p) => p.activa).length;
-        const ingresos = pedidos.reduce(
-          (acc, p) => acc + (p.monto_total || 0),
-          0
-        );
+        const ingresos = pedidos
+          .filter((p) => p.activa)
+          .reduce((acc, p) => acc + (p.monto_total || 0), 0);
 
         setClientesTotales(total);
         setClientesActivos(activos);
         setIngresosTotales(ingresos);
 
-        // Calcular ingresos por mes (últimos 6 meses)
+        // 🔹 Calcular ingresos acumulativos por mes (últimos 6 meses)
         const ahora = new Date();
         const ultimos6Meses: MonthlyRevenue[] = [];
 
@@ -58,12 +58,12 @@ const Reports: React.FC = () => {
 
           const ingresosMes = pedidos
             .filter((p) => {
-              if (!p.ultimo_envio) return false;
-              // Convertir manualmente el string a fecha (para tipo "date")
-              const envio = new Date(p.ultimo_envio + "T00:00:00");
+              if (!p.since) return false;
+              const inicio = new Date(`${p.since}T00:00:00`);
+              // ✅ si la suscripción empezó antes o durante este mes y sigue activa, acumula
               return (
-                envio.getMonth() === fecha.getMonth() &&
-                envio.getFullYear() === fecha.getFullYear()
+                inicio <= fecha &&
+                (p.activa || new Date(p.ultimo_envio || "") >= fecha)
               );
             })
             .reduce((acc, p) => acc + (p.monto_total || 0), 0);
@@ -139,7 +139,7 @@ const Reports: React.FC = () => {
         </div>
       </div>
 
-      {/* Gráfico de líneas */}
+      {/* 📈 Gráfico de líneas acumulativo */}
       <div className="bg-white shadow-md rounded-xl p-6 mb-10">
         <h2 className="text-2xl font-semibold text-[#4A2C2A] mb-4">
           Ingresos Totales (Últimos 6 Meses)
@@ -150,15 +150,12 @@ const Reports: React.FC = () => {
           height={300}
           series={[
             {
-              name: "Ingresos",
+              name: "Ingresos acumulados",
               data: ingresosMensuales.map((m) => m.total),
             },
           ]}
           options={{
-            chart: {
-              toolbar: { show: false },
-              zoom: { enabled: false },
-            },
+            chart: { toolbar: { show: false }, zoom: { enabled: false } },
             stroke: { curve: "smooth", width: 3 },
             xaxis: {
               categories: ingresosMensuales.map((m) => m.month),
@@ -173,9 +170,7 @@ const Reports: React.FC = () => {
             colors: ["#A77B5D"],
             markers: { size: 5, colors: ["#A77B5D"], strokeColors: "#fff" },
             tooltip: {
-              y: {
-                formatter: (val) => `$${val.toLocaleString("es-CO")}`,
-              },
+              y: { formatter: (val) => `$${val.toLocaleString("es-CO")}` },
             },
           }}
         />
