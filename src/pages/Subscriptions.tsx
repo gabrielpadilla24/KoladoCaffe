@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "../supabaseClient";
 import DashboardLayout from "../layouts/DashboardLayout";
 
@@ -38,7 +38,7 @@ const Subscriptions: React.FC = () => {
       const { data, error } = await supabase
         .from("pedidos")
         .select("*, productos_suscripcion(*)")
-        .eq("activa", true); // ✅ Solo suscripciones activas
+        .eq("activa", true);
 
       if (error) {
         console.error("Error al cargar suscripciones:", error);
@@ -71,7 +71,7 @@ const Subscriptions: React.FC = () => {
       .eq("id", id);
 
     if (error) {
-      alert("Error al actualizar envío: " + error.message);
+      alert("❌ Error al actualizar envío: " + error.message);
     } else {
       alert("✅ Envío marcado como completado.");
       setSubscriptions((prev) =>
@@ -91,7 +91,7 @@ const Subscriptions: React.FC = () => {
   if (loading) {
     return (
       <DashboardLayout>
-        <p className="text-center text-[#4A2C2A]">Cargando suscripciones...</p>
+        <p className="text-center text-[#1F3577]">Cargando suscripciones...</p>
       </DashboardLayout>
     );
   }
@@ -99,13 +99,7 @@ const Subscriptions: React.FC = () => {
   return (
     <DashboardLayout>
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold text-[#4A2C2A]">Suscripciones</h1>
-        <Link
-          to="/new-subscription"
-          className="bg-[#4A2C2A] text-white px-4 py-2 rounded-lg hover:bg-[#6B3E36] transition duration-200"
-        >
-          + Nueva Suscripción
-        </Link>
+        <h1 className="text-3xl font-bold text-[#1F3577]">Suscripciones</h1>
       </div>
 
       {subscriptions.length === 0 ? (
@@ -114,8 +108,8 @@ const Subscriptions: React.FC = () => {
         </p>
       ) : (
         <div className="overflow-x-auto">
-          <table className="min-w-full bg-white border border-gray-200 rounded-lg shadow-md">
-            <thead className="bg-[#F5EFE7] text-[#4A2C2A]">
+          <table className="min-w-full bg-white border border-gray-200 rounded-lg shadow-lg">
+            <thead className="bg-[#EAF0FA] text-[#1F3577] uppercase text-sm font-semibold">
               <tr>
                 <th className="py-3 px-4 text-left">Cliente</th>
                 <th className="py-3 px-4 text-left">Plan</th>
@@ -128,34 +122,36 @@ const Subscriptions: React.FC = () => {
               {subscriptions.map((sub) => (
                 <tr
                   key={sub.id}
-                  className="border-b hover:bg-[#F9F6F2] transition duration-150"
+                  className="border-b hover:bg-[#F8FAFC] transition duration-150"
                 >
-                  <td className="py-3 px-4">{sub.datos_cliente?.nombre}</td>
-                  <td className="py-3 px-4">
+                  <td className="py-3 px-4 text-gray-800 font-medium">
+                    {sub.datos_cliente?.nombre}
+                  </td>
+                  <td className="py-3 px-4 text-gray-700">
                     {sub.productos_suscripcion?.productos_suscripcion || "—"}
                   </td>
                   <td
                     className={`py-3 px-4 font-semibold ${
-                      sub.pendiente ? "text-yellow-600" : "text-green-600"
+                      sub.pendiente ? "text-yellow-500" : "text-green-600"
                     }`}
                   >
                     {sub.pendiente ? "Pendiente de envío" : "Activa"}
                   </td>
-                  <td className="py-3 px-4">
+                  <td className="py-3 px-4 text-gray-600">
                     {calcularProximoEnvio(sub.ultimo_envio)}
                   </td>
                   <td className="py-3 px-4 space-x-2">
                     {sub.pendiente && (
                       <button
                         onClick={() => void marcarComoEnviado(sub.id)}
-                        className="text-sm bg-[#A77B5D] text-white px-3 py-1 rounded-md hover:bg-[#8C5E58]"
+                        className="text-sm bg-green-500 text-white px-3 py-1 rounded-md hover:bg-green-600 transition duration-200 shadow-sm"
                       >
                         Marcar Enviado
                       </button>
                     )}
                     <button
                       onClick={() => navigate(`/subscription/${sub.id}`)}
-                      className="text-sm bg-[#4A2C2A] text-white px-3 py-1 rounded-md hover:bg-[#6B3E36]"
+                      className="text-sm bg-[#1F3577] text-white px-3 py-1 rounded-md hover:bg-[#304E9D] transition duration-200 shadow-sm"
                     >
                       Ver Detalles
                     </button>
