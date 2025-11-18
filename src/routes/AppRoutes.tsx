@@ -7,6 +7,7 @@ import Reports from "../pages/Reports";
 import ViewDetails from "../pages/ViewDetails";
 import Marketplace from "../pages/Marketplace";
 import SuscribirseForm from "../pages/SuscribirseForm";
+import Pagos from "../pages/Pagos";
 
 function AppRoutes() {
   return (
@@ -14,6 +15,7 @@ function AppRoutes() {
       <Routes>
         <Route path="/" element={<Marketplace />} />
         <Route path="/suscribirse/:id" element={<SuscribirseForm />} />
+        <Route path="/pago" element={<Pagos />} />
 
         <Route path="/Login" element={<Login />} />
         <Route path="/dashboard" element={<Dashboard />} />

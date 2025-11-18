@@ -1,15 +1,12 @@
 import React, { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { supabase } from "../supabaseClient";
 import Navbar from "../components/Navbar";
 
 const SuscribirseForm: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
-
   const producto = location.state?.producto;
 
-  // ✅ useState se ejecuta siempre (sin condicional)
   const [formData, setFormData] = useState({
     nombre: "",
     email: "",
@@ -17,7 +14,6 @@ const SuscribirseForm: React.FC = () => {
     telefono: "",
   });
 
-  // ✅ Hooks primero, luego el condicional
   if (!producto) {
     navigate("/");
     return null;
@@ -27,25 +23,10 @@ const SuscribirseForm: React.FC = () => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleContinue = (e: React.FormEvent) => {
     e.preventDefault();
-
-    const nuevoPedido = {
-      id_producto: producto.id,
-      datos_cliente: formData,
-      monto_total: producto.precio,
-    };
-
-    const { error } = await supabase.from("pedidos").insert([nuevoPedido]);
-
-    if (error) {
-      alert("❌ Error al crear el pedido: " + error.message);
-    } else {
-      alert(
-        `✅ ¡Suscripción a ${producto.productos_suscripcion} creada exitosamente!`
-      );
-      navigate("/");
-    }
+    // ✅ Enviar al flujo de pago con la info del cliente + producto
+    navigate("/pago", { state: { producto, cliente: formData } });
   };
 
   return (
@@ -60,14 +41,14 @@ const SuscribirseForm: React.FC = () => {
           Precio mensual: ${producto.precio.toLocaleString("es-CO")}
         </p>
 
-        <form onSubmit={handleSubmit} className="space-y-5">
+        <form onSubmit={handleContinue} className="space-y-5">
           <input
             name="nombre"
             placeholder="Nombre completo"
             value={formData.nombre}
             onChange={handleChange}
             required
-            className="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-[#A77B5D]"
+            className="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-[#A77B5D]"
           />
           <input
             name="email"
@@ -76,7 +57,7 @@ const SuscribirseForm: React.FC = () => {
             value={formData.email}
             onChange={handleChange}
             required
-            className="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-[#A77B5D]"
+            className="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-[#A77B5D]"
           />
           <input
             name="direccion"
@@ -84,7 +65,7 @@ const SuscribirseForm: React.FC = () => {
             value={formData.direccion}
             onChange={handleChange}
             required
-            className="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-[#A77B5D]"
+            className="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-[#A77B5D]"
           />
           <input
             name="telefono"
@@ -92,14 +73,14 @@ const SuscribirseForm: React.FC = () => {
             value={formData.telefono}
             onChange={handleChange}
             required
-            className="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-[#A77B5D]"
+            className="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-[#A77B5D]"
           />
 
           <button
             type="submit"
             className="w-full bg-[#4A2C2A] text-white py-3 rounded-lg hover:bg-[#6B3E36] transition duration-200"
           >
-            Confirmar suscripción
+            Continuar al pago 💳
           </button>
         </form>
       </div>
