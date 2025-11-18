@@ -25,19 +25,20 @@ interface Pedido {
   activa: boolean;
   pendiente: boolean;
   ultimo_envio: string;
-  productos_suscripcion?: Producto; // ✅ relación correcta con Supabase
+  productos_suscripcion?: Producto;
 }
 
-const Subscriptions = () => {
+const Subscriptions: React.FC = () => {
   const [subscriptions, setSubscriptions] = useState<Pedido[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState<boolean>(true);
   const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchSubscriptions = async () => {
+    const fetchSubscriptions = async (): Promise<void> => {
       const { data, error } = await supabase
         .from("pedidos")
-        .select("*, productos_suscripcion(*)"); // ✅ join correcto
+        .select("*, productos_suscripcion(*)")
+        .eq("activa", true); // ✅ Solo suscripciones activas
 
       if (error) {
         console.error("Error al cargar suscripciones:", error);
@@ -47,10 +48,10 @@ const Subscriptions = () => {
       setLoading(false);
     };
 
-    fetchSubscriptions();
+    void fetchSubscriptions();
   }, []);
 
-  const calcularProximoEnvio = (ultimoEnvio: string) => {
+  const calcularProximoEnvio = (ultimoEnvio: string): string => {
     const fecha = new Date(ultimoEnvio);
     fecha.setMonth(fecha.getMonth() + 1);
     return fecha.toLocaleDateString("es-CO", {
@@ -60,7 +61,7 @@ const Subscriptions = () => {
     });
   };
 
-  const marcarComoEnviado = async (id: number) => {
+  const marcarComoEnviado = async (id: number): Promise<void> => {
     const { error } = await supabase
       .from("pedidos")
       .update({
@@ -69,8 +70,9 @@ const Subscriptions = () => {
       })
       .eq("id", id);
 
-    if (error) alert("Error al actualizar envío: " + error.message);
-    else {
+    if (error) {
+      alert("Error al actualizar envío: " + error.message);
+    } else {
       alert("✅ Envío marcado como completado.");
       setSubscriptions((prev) =>
         prev.map((sub) =>
@@ -106,58 +108,64 @@ const Subscriptions = () => {
         </Link>
       </div>
 
-      <div className="overflow-x-auto">
-        <table className="min-w-full bg-white border border-gray-200 rounded-lg shadow-md">
-          <thead className="bg-[#F5EFE7] text-[#4A2C2A]">
-            <tr>
-              <th className="py-3 px-4 text-left">Cliente</th>
-              <th className="py-3 px-4 text-left">Plan</th>
-              <th className="py-3 px-4 text-left">Estado</th>
-              <th className="py-3 px-4 text-left">Próximo Envío</th>
-              <th className="py-3 px-4 text-left">Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            {subscriptions.map((sub) => (
-              <tr
-                key={sub.id}
-                className="border-b hover:bg-[#F9F6F2] transition duration-150"
-              >
-                <td className="py-3 px-4">{sub.datos_cliente?.nombre}</td>
-                <td className="py-3 px-4">
-                  {sub.productos_suscripcion?.productos_suscripcion || "—"}
-                </td>
-                <td
-                  className={`py-3 px-4 font-semibold ${
-                    sub.pendiente ? "text-yellow-600" : "text-green-600"
-                  }`}
-                >
-                  {sub.pendiente ? "Pendiente de envío" : "Activa"}
-                </td>
-                <td className="py-3 px-4">
-                  {calcularProximoEnvio(sub.ultimo_envio)}
-                </td>
-                <td className="py-3 px-4 space-x-2">
-                  {sub.pendiente && (
-                    <button
-                      onClick={() => marcarComoEnviado(sub.id)}
-                      className="text-sm bg-[#A77B5D] text-white px-3 py-1 rounded-md hover:bg-[#8C5E58]"
-                    >
-                      Marcar Enviado
-                    </button>
-                  )}
-                  <button
-                    onClick={() => navigate(`/subscription/${sub.id}`)}
-                    className="text-sm bg-[#4A2C2A] text-white px-3 py-1 rounded-md hover:bg-[#6B3E36]"
-                  >
-                    Ver Detalles
-                  </button>
-                </td>
+      {subscriptions.length === 0 ? (
+        <p className="text-center text-gray-600 mt-10">
+          No hay suscripciones activas.
+        </p>
+      ) : (
+        <div className="overflow-x-auto">
+          <table className="min-w-full bg-white border border-gray-200 rounded-lg shadow-md">
+            <thead className="bg-[#F5EFE7] text-[#4A2C2A]">
+              <tr>
+                <th className="py-3 px-4 text-left">Cliente</th>
+                <th className="py-3 px-4 text-left">Plan</th>
+                <th className="py-3 px-4 text-left">Estado</th>
+                <th className="py-3 px-4 text-left">Próximo Envío</th>
+                <th className="py-3 px-4 text-left">Acciones</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+            </thead>
+            <tbody>
+              {subscriptions.map((sub) => (
+                <tr
+                  key={sub.id}
+                  className="border-b hover:bg-[#F9F6F2] transition duration-150"
+                >
+                  <td className="py-3 px-4">{sub.datos_cliente?.nombre}</td>
+                  <td className="py-3 px-4">
+                    {sub.productos_suscripcion?.productos_suscripcion || "—"}
+                  </td>
+                  <td
+                    className={`py-3 px-4 font-semibold ${
+                      sub.pendiente ? "text-yellow-600" : "text-green-600"
+                    }`}
+                  >
+                    {sub.pendiente ? "Pendiente de envío" : "Activa"}
+                  </td>
+                  <td className="py-3 px-4">
+                    {calcularProximoEnvio(sub.ultimo_envio)}
+                  </td>
+                  <td className="py-3 px-4 space-x-2">
+                    {sub.pendiente && (
+                      <button
+                        onClick={() => void marcarComoEnviado(sub.id)}
+                        className="text-sm bg-[#A77B5D] text-white px-3 py-1 rounded-md hover:bg-[#8C5E58]"
+                      >
+                        Marcar Enviado
+                      </button>
+                    )}
+                    <button
+                      onClick={() => navigate(`/subscription/${sub.id}`)}
+                      className="text-sm bg-[#4A2C2A] text-white px-3 py-1 rounded-md hover:bg-[#6B3E36]"
+                    >
+                      Ver Detalles
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
     </DashboardLayout>
   );
 };
