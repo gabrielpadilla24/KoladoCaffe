@@ -8,7 +8,7 @@ interface Pedido {
   monto_total: number;
   activa: boolean;
   ultimo_envio: string | null;
-  since: string | null; // nueva columna
+  since: string | null;
 }
 
 interface MonthlyRevenue {
@@ -37,18 +37,19 @@ const Reports: React.FC = () => {
 
         const pedidos = data as Pedido[];
 
-        // 🔹 Totales
+        // 🔹 Totales generales
         const total = pedidos.length;
         const activos = pedidos.filter((p) => p.activa).length;
-        const ingresos = pedidos
-          .filter((p) => p.activa)
-          .reduce((acc, p) => acc + (p.monto_total || 0), 0);
+        const ingresos = pedidos.reduce(
+          (acc, p) => acc + (p.monto_total || 0),
+          0
+        );
 
         setClientesTotales(total);
         setClientesActivos(activos);
         setIngresosTotales(ingresos);
 
-        // 🔹 Calcular ingresos acumulativos por mes (últimos 6 meses)
+        // 🔹 Ingresos por mes (solo del mes de inicio `since`)
         const ahora = new Date();
         const ultimos6Meses: MonthlyRevenue[] = [];
 
@@ -56,14 +57,14 @@ const Reports: React.FC = () => {
           const fecha = new Date(ahora.getFullYear(), ahora.getMonth() - i, 1);
           const nombreMes = fecha.toLocaleString("es-CO", { month: "short" });
 
+          // Filtra pedidos cuya fecha "since" pertenece a este mes
           const ingresosMes = pedidos
             .filter((p) => {
               if (!p.since) return false;
               const inicio = new Date(`${p.since}T00:00:00`);
-              // ✅ si la suscripción empezó antes o durante este mes y sigue activa, acumula
               return (
-                inicio <= fecha &&
-                (p.activa || new Date(p.ultimo_envio || "") >= fecha)
+                inicio.getMonth() === fecha.getMonth() &&
+                inicio.getFullYear() === fecha.getFullYear()
               );
             })
             .reduce((acc, p) => acc + (p.monto_total || 0), 0);
@@ -110,13 +111,13 @@ const Reports: React.FC = () => {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
         <div className="bg-white shadow-md p-6 rounded-xl border-l-4 border-[#A77B5D]">
           <h2 className="text-lg font-semibold text-gray-700 mb-2">
-            Ingresos Totales Activos
+            Ingresos Totales
           </h2>
           <p className="text-3xl font-bold text-[#4A2C2A]">
             ${ingresosTotales.toLocaleString("es-CO")}
           </p>
           <p className="text-sm text-gray-500 mt-1">
-            Suma de todas las suscripciones activas
+            Total de ingresos de todas las suscripciones
           </p>
         </div>
 
@@ -139,10 +140,10 @@ const Reports: React.FC = () => {
         </div>
       </div>
 
-      {/* 📈 Gráfico de líneas acumulativo */}
+      {/* 📊 Gráfico de líneas por mes */}
       <div className="bg-white shadow-md rounded-xl p-6 mb-10">
         <h2 className="text-2xl font-semibold text-[#4A2C2A] mb-4">
-          Ingresos Totales (Últimos 6 Meses)
+          Ingresos Nuevos por Mes (según fecha de suscripción)
         </h2>
 
         <Chart
@@ -150,7 +151,7 @@ const Reports: React.FC = () => {
           height={300}
           series={[
             {
-              name: "Ingresos acumulados",
+              name: "Ingresos mensuales",
               data: ingresosMensuales.map((m) => m.total),
             },
           ]}
