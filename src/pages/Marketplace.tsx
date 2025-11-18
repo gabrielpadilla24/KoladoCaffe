@@ -1,8 +1,16 @@
 import React, { useState, useEffect } from "react";
 import { supabase } from "../supabaseClient";
-import type { Producto } from "../types/supabase";
 import Navbar from "../components/Navbar";
-import suscripcionesImg from "../assets/suscripciones.jpg"; // ✅ Imagen local
+import suscripcionesImg from "../assets/suscripciones.jpg";
+
+// --- Tipo ajustado a tu tabla real ---
+interface Producto {
+  id: number;
+  productos_suscripcion: string;
+  descripcion: string;
+  precio: number;
+  activo: boolean;
+}
 
 // --- Función para manejar la suscripción ---
 const handleSuscripcion = async (producto: Producto) => {
@@ -20,7 +28,9 @@ const handleSuscripcion = async (producto: Producto) => {
     if (error) {
       alert("Error al guardar el pedido: " + error.message);
     } else {
-      alert(`¡Suscripción a ${producto.nombre} exitosa! Pedido creado.`);
+      alert(
+        `¡Suscripción a ${producto.productos_suscripcion} exitosa! Pedido creado.`
+      );
     }
   }
 };
@@ -67,25 +77,22 @@ const Marketplace: React.FC = () => {
           {productos.map((producto) => (
             <div
               key={producto.id}
-              className="bg-white shadow-lg rounded-2xl overflow-hidden transition-transform hover:scale-105 border border-gray-100"
+              className="relative bg-white shadow-lg rounded-2xl overflow-hidden transition-transform hover:scale-105 border border-gray-100 group"
             >
-              {/* Imagen del producto */}
+              {/* Imagen */}
               <div className="h-56 w-full overflow-hidden">
                 <img
                   src={suscripcionesImg}
-                  alt={producto.nombre}
+                  alt={producto.productos_suscripcion}
                   className="h-full w-full object-cover hover:scale-110 transition-transform duration-300"
                 />
               </div>
 
-              {/* Contenido */}
-              <div className="p-6">
+              {/* Contenido principal */}
+              <div className="p-6 relative z-10">
                 <h2 className="text-2xl font-semibold text-[#4A2C2A] mb-2">
-                  {producto.nombre}
+                  {producto.productos_suscripcion}
                 </h2>
-                <p className="text-gray-700 mb-4 line-clamp-2">
-                  {producto.descripcion}
-                </p>
                 <p className="text-2xl font-bold text-[#A77B5D] mb-6">
                   ${producto.precio}
                 </p>
@@ -96,6 +103,13 @@ const Marketplace: React.FC = () => {
                 >
                   Suscribirse
                 </button>
+              </div>
+
+              {/* Overlay con descripción al hover */}
+              <div className="absolute inset-0 bg-[#4A2C2Adf] text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex justify-center items-center text-center p-6">
+                <p className="text-sm leading-relaxed">
+                  {producto.descripcion}
+                </p>
               </div>
             </div>
           ))}
