@@ -28,7 +28,7 @@ interface Pedido {
   productos_suscripcion?: Producto;
 }
 
-const Subscriptions: React.FC = () => {
+const CancelSubscriptions: React.FC = () => {
   const [subscriptions, setSubscriptions] = useState<Pedido[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
 
@@ -172,7 +172,7 @@ const Subscriptions: React.FC = () => {
                   {sub.productos_suscripcion?.productos_suscripcion || "—"}
                 </td>
                 <td className="py-3 px-4">
-                  ${sub.monto_total.toLocaleString()}
+                  ${sub.monto_total.toLocaleString("es-CO")}
                 </td>
                 <td
                   className={`py-3 px-4 font-semibold ${
@@ -210,4 +210,4 @@ const Subscriptions: React.FC = () => {
   );
 };
 
-export default Subscriptions;
+export default CancelSubscriptions;

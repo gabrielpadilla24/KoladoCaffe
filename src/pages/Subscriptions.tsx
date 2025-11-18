@@ -24,7 +24,7 @@ interface Pedido {
   monto_total: number;
   activa: boolean;
   pendiente: boolean;
-  ultimo_envio: string;
+  ultimo_envio: string | null; // ✅ Puede ser nulo
   productos_suscripcion?: Producto;
 }
 
@@ -51,8 +51,13 @@ const Subscriptions: React.FC = () => {
     void fetchSubscriptions();
   }, []);
 
-  const calcularProximoEnvio = (ultimoEnvio: string): string => {
+  const calcularProximoEnvio = (ultimoEnvio: string | null): string => {
+    if (!ultimoEnvio) return "Pendiente para primer envío";
+
     const fecha = new Date(ultimoEnvio);
+    if (isNaN(fecha.getTime()) || fecha.getFullYear() < 2000)
+      return "Pendiente para primer envío";
+
     fecha.setMonth(fecha.getMonth() + 1);
     return fecha.toLocaleDateString("es-CO", {
       day: "2-digit",
