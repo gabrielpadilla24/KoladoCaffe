@@ -5,6 +5,7 @@ import Subscriptions from "../pages/Subscriptions";
 import NewSubscription from "../pages/NewSubscription";
 import Reports from "../pages/Reports";
 import ViewDetails from "../pages/ViewDetails";
+import Marketplace from "../pages/Marketplace";
 
 function AppRoutes() {
   return (
@@ -16,6 +17,7 @@ function AppRoutes() {
         <Route path="/new-subscription" element={<NewSubscription />} />
         <Route path="/reports" element={<Reports />} />
         <Route path="/view-details" element={<ViewDetails />} />
+        <Route path="/marketplace" element={<Marketplace />} />
       </Routes>
     </BrowserRouter>
   );
