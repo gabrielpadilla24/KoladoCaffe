@@ -10,9 +10,13 @@ const Sidebar = () => {
       <Link to="/subscriptions" className="hover:bg-[#2563EB] p-2 rounded">
         Suscripciones
       </Link>
-      <Link to="/new-subscription" className="hover:bg-[#2563EB] p-2 rounded">
-        Nueva Suscripción
+      <Link
+        to="/cancel-subscriptions"
+        className="hover:bg-[#2563EB] p-2 rounded"
+      >
+        Cancelar Suscripciones
       </Link>
+
       <Link to="/reports" className="hover:bg-[#2563EB] p-2 rounded">
         Reportes
       </Link>

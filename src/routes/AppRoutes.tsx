@@ -8,6 +8,7 @@ import Marketplace from "../pages/Marketplace";
 import SuscribirseForm from "../pages/SuscribirseForm";
 import SubscriptionDetail from "../pages/SubscriptionDetail";
 import Pagos from "../pages/Pagos";
+import CancelSubscriptions from "../pages/CancelSubscriptions";
 
 function AppRoutes() {
   return (
@@ -19,6 +20,7 @@ function AppRoutes() {
 
         <Route path="/Login" element={<Login />} />
         <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/cancel-subscriptions" element={<CancelSubscriptions />} />
         <Route path="/subscriptions" element={<Subscriptions />} />
         <Route path="/subscription/:id" element={<SubscriptionDetail />} />
         <Route path="/reports" element={<Reports />} />
