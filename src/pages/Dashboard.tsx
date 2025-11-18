@@ -1,6 +1,29 @@
+import { useEffect, useState } from "react";
+import { supabase } from "../supabaseClient";
 import DashboardLayout from "../layouts/DashboardLayout";
 
 const Dashboard = () => {
+  const [suscripcionesActivas, setSuscripcionesActivas] = useState<
+    number | null
+  >(null);
+
+  useEffect(() => {
+    const fetchActivas = async () => {
+      const { data, error } = await supabase
+        .from("pedidos")
+        .select("id", { count: "exact" })
+        .eq("activa", true);
+
+      if (error) {
+        console.error("Error al cargar suscripciones:", error);
+      } else {
+        setSuscripcionesActivas(data.length);
+      }
+    };
+
+    fetchActivas();
+  }, []);
+
   return (
     <DashboardLayout>
       <h1 className="text-3xl font-bold text-[#4A2C2A] mb-6">
@@ -13,7 +36,11 @@ const Dashboard = () => {
           <h2 className="text-lg font-semibold text-gray-700 mb-2">
             Suscripciones Activas
           </h2>
-          <p className="text-3xl font-bold text-[#4A2C2A]">128</p>
+          <p className="text-3xl font-bold text-[#4A2C2A]">
+            {suscripcionesActivas !== null
+              ? suscripcionesActivas
+              : "Cargando..."}
+          </p>
         </div>
 
         {/* Tarjeta 2 */}

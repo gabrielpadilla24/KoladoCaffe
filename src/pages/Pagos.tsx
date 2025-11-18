@@ -37,6 +37,8 @@ const Pagos: React.FC = () => {
       id_producto: producto.id,
       datos_cliente: { ...cliente, metodo_pago: pago },
       monto_total: producto.precio,
+      activa: true,
+      pendiente: true,
     };
 
     const { error } = await supabase.from("pedidos").insert([nuevoPedido]);
