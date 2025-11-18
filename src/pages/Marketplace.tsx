@@ -2,7 +2,9 @@ import React, { useState, useEffect } from "react";
 import { supabase } from "../supabaseClient";
 import type { Producto } from "../types/supabase";
 import Navbar from "../components/Navbar";
+import suscripcionesImg from "../assets/suscripciones.jpg"; // ✅ Imagen local
 
+// --- Función para manejar la suscripción ---
 const handleSuscripcion = async (producto: Producto) => {
   const pagoExitoso = true; // Simulación de pago
 
@@ -23,6 +25,7 @@ const handleSuscripcion = async (producto: Producto) => {
   }
 };
 
+// --- Componente principal ---
 const Marketplace: React.FC = () => {
   const [productos, setProductos] = useState<Producto[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
@@ -59,23 +62,37 @@ const Marketplace: React.FC = () => {
           Marketplace de Suscripciones ☕
         </h1>
 
+        {/* GRID DE PRODUCTOS */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
           {productos.map((producto) => (
             <div
               key={producto.id}
-              className="bg-white shadow-lg rounded-2xl overflow-hidden transition-transform hover:scale-105"
+              className="bg-white shadow-lg rounded-2xl overflow-hidden transition-transform hover:scale-105 border border-gray-100"
             >
-              <div className="h-48 bg-[#EEE0C9] flex items-center justify-center text-[#4A2C2A] text-2xl font-semibold">
-                {producto.nombre}
+              {/* Imagen del producto */}
+              <div className="h-56 w-full overflow-hidden">
+                <img
+                  src={suscripcionesImg}
+                  alt={producto.nombre}
+                  className="h-full w-full object-cover hover:scale-110 transition-transform duration-300"
+                />
               </div>
+
+              {/* Contenido */}
               <div className="p-6">
-                <p className="text-gray-700 mb-2">{producto.descripcion}</p>
-                <p className="text-2xl font-bold text-[#4A2C2A] mb-4">
+                <h2 className="text-2xl font-semibold text-[#4A2C2A] mb-2">
+                  {producto.nombre}
+                </h2>
+                <p className="text-gray-700 mb-4 line-clamp-2">
+                  {producto.descripcion}
+                </p>
+                <p className="text-2xl font-bold text-[#A77B5D] mb-6">
                   ${producto.precio}
                 </p>
+
                 <button
                   onClick={() => handleSuscripcion(producto)}
-                  className="w-full bg-[#4A2C2A] text-white py-2 rounded-lg hover:bg-[#6B3E36] transition duration-200"
+                  className="w-full bg-[#4A2C2A] text-white py-3 rounded-lg hover:bg-[#6B3E36] transition duration-200"
                 >
                   Suscribirse
                 </button>
